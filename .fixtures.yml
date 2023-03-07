@@ -12,3 +12,6 @@ fixtures:
     translate:
       repo: 'puppetlabs/translate'
       ref:  '1.2.0'
+    yumrepo_core:
+      repo: 'puppetlabs/yumrepo_core'
+      ref:  '1.2.0'
