@@ -70,6 +70,12 @@ class lithnetamagent (
       unless  => "/usr/bin/grep -iq ${ams_server} /etc/LithnetAccessManagerAgent.conf",
       user    => 'root',
       require => Package['LithnetAccessManagerAgent'],
+      notify  => Service['LithnetAccessManagerAgent'],
+    }
+
+    service { 'LithnetAccessManagerAgent':
+      ensure => 'running',
+      enable => true,
     }
   }
 }
