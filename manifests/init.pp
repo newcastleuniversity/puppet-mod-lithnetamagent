@@ -42,8 +42,10 @@ class lithnetamagent (
     'Debian' : {
       include apt
 
+      $realosname = downcase($facts['os']['name'])
+
       apt::source { 'Lithnet' :
-        location => "https://packages.lithnet.io/linux/deb/prod/repos/${facts['os']['name']}",
+        location => "https://packages.lithnet.io/linux/deb/prod/repos/${realosname}",
         release  => $facts['os']['distro']['codename'],
         repos    => 'main',
         key      => {
