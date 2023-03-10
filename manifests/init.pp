@@ -24,8 +24,8 @@ class lithnetamagent (
   if $facts['os']['family'] == 'RedHat' and !($facts['os']['release']['major'] in ['7','8','9']) {
     fail("Current os.release.major is ${::facts['os']['release']['major']} and must be 7, 8 or 9")
   }
-  if $facts['os']['name'] == 'Ubuntu' and !($facts['os']['release']['major'] in ['20.04','22.04']) {
-    fail("Current os.release.major is ${::facts['os']['release']['major']} and must be 22.04 or 20.04")
+  if $facts['os']['name'] == 'Ubuntu' and !($facts['os']['release']['major'] in ['18.04','20.04','22.04']) {
+    fail("Current os.release.major is ${::facts['os']['release']['major']} and must be 18.04, 20.04, or 22.04")
   }
   case $facts['os']['family'] {
     'RedHat' : {

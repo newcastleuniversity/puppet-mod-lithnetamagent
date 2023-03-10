@@ -7,7 +7,7 @@ describe 'lithnetamagent' do
     supported_os: [
       {
         'operatingsystem'        => 'Ubuntu',
-        'operatingsystemrelease' => ['20.04', '22.04'],
+        'operatingsystemrelease' => ['18.04', '20.04', '22.04'],
       },
     ],
   }
