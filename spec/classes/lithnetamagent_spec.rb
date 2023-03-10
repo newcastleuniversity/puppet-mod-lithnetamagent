@@ -55,7 +55,11 @@ describe 'lithnetamagent' do
     on_supported_os(ubuntu).each do |_os, os_facts|
       let(:facts) { os_facts }
 
-      it { is_expected.to contain_apt__source('Lithnet') }
+      it {
+        is_expected.to contain_apt__source('Lithnet').with(
+          'location' => 'https://packages.lithnet.io/linux/deb/prod/repos/ubuntu',
+        )
+      }
     end # ubuntu each
   end # Ubuntu context
   context 'RedHat-only tests' do
