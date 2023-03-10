@@ -38,6 +38,7 @@ class lithnetamagent (
         gpgcheck => 0,
         before   => Package['LithnetAccessManagerAgent'],
       }
+      $p = {}
     }
     'Debian' : {
       include apt
@@ -54,6 +55,9 @@ class lithnetamagent (
         },
         before   => Package['LithnetAccessManagerAgent'],
       }
+      $p = {
+        name => 'lithnetaccessmanageragent',
+      }
     }
     # If we've ended up here, then this module doesn't currently support the OS
     default : { fail("Unsupported OS ${facts['os']['family']}.") }
@@ -62,7 +66,8 @@ class lithnetamagent (
 
   # Install the Lithnet Access Manager agent package
   package { 'LithnetAccessManagerAgent':
-    ensure  => 'installed',
+    ensure => 'installed',
+    *      => $p,
   }
 
   # If "register_agent" is true, try to register the agent

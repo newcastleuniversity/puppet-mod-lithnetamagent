@@ -35,7 +35,6 @@ describe 'lithnetamagent' do
       let(:facts) { os_facts }
 
       it { is_expected.to compile.with_all_deps }
-      it { is_expected.to contain_package('LithnetAccessManagerAgent') }
       it {
         is_expected.to contain_exec('agent-register').with(
           'command' => '/opt/LithnetAccessManagerAgent/Lithnet.AccessManager.Agent --server 192.168.1.100 --registration-key alphabetsoup',
@@ -60,6 +59,11 @@ describe 'lithnetamagent' do
           'location' => 'https://packages.lithnet.io/linux/deb/prod/repos/ubuntu',
         )
       }
+      it {
+        is_expected.to contain_package('LithnetAccessManagerAgent').with(
+          'name' => 'lithnetaccessmanageragent',
+        )
+      }
     end # ubuntu each
   end # Ubuntu context
   context 'RedHat-only tests' do
@@ -69,6 +73,7 @@ describe 'lithnetamagent' do
       let(:facts) { os_facts }
 
       it { is_expected.to contain_yumrepo('lithnet-am-repo') }
+      it { is_expected.to contain_package('LithnetAccessManagerAgent') }
     end # redhat each
   end # RedHat context
   context 'Supported OS tests with default lack of parameters' do
