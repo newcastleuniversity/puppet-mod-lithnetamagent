@@ -73,7 +73,11 @@ describe 'lithnetamagent' do
       let(:facts) { os_facts }
 
       it { is_expected.to contain_yumrepo('lithnet-am-repo') }
-      it { is_expected.to contain_package('LithnetAccessManagerAgent') }
+      it {
+        is_expected.to contain_package('LithnetAccessManagerAgent').with(
+          'name' => 'LithnetAccessManagerAgent',
+        )
+      }
     end # redhat each
   end # RedHat context
   context 'Supported OS tests with default lack of parameters' do

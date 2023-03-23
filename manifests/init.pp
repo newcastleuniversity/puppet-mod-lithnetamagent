@@ -27,6 +27,9 @@ class lithnetamagent (
   if $facts['os']['name'] == 'Ubuntu' and !($facts['os']['release']['major'] in ['18.04','20.04','22.04']) {
     fail("Current os.release.major is ${::facts['os']['release']['major']} and must be 18.04, 20.04, or 22.04")
   }
+
+  $packagename = lookup('lithnetamagent::packagename')
+
   case $facts['os']['family'] {
     'RedHat' : {
       # Install the Lithnet RPM repo
@@ -38,7 +41,6 @@ class lithnetamagent (
         gpgcheck => 0,
         before   => Package['LithnetAccessManagerAgent'],
       }
-      $p = {}
     }
     'Debian' : {
       include apt
@@ -55,9 +57,6 @@ class lithnetamagent (
         },
         before   => Package['LithnetAccessManagerAgent'],
       }
-      $p = {
-        name => 'lithnetaccessmanageragent',
-      }
     }
     # If we've ended up here, then this module doesn't currently support the OS
     default : { fail("Unsupported OS ${facts['os']['family']}.") }
@@ -67,7 +66,7 @@ class lithnetamagent (
   # Install the Lithnet Access Manager agent package
   package { 'LithnetAccessManagerAgent':
     ensure => 'installed',
-    *      => $p,
+    name   => $packagename,
   }
 
   # If "register_agent" is true, try to register the agent
