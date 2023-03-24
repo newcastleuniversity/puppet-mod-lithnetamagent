@@ -72,7 +72,11 @@ describe 'lithnetamagent' do
     on_supported_os(redhat).each do |_os, os_facts|
       let(:facts) { os_facts }
 
-      it { is_expected.to contain_yumrepo('lithnet-am-repo') }
+      it {
+        is_expected.to contain_yumrepo('lithnet-am-repo').with(
+          'baseurl' => %r{https://packages.lithnet.io/linux/rpm/prod/repos/rhel},
+        )
+      }
       it {
         is_expected.to contain_package('LithnetAccessManagerAgent').with(
           'name' => 'LithnetAccessManagerAgent',
