@@ -16,9 +16,10 @@
 # @param reg_key
 #   Agent registration key
 class lithnetamagent (
-  Boolean          $register_agent = false,
-  Optional[String] $ams_server     = undef,
-  Optional[String] $reg_key        = undef,
+  Boolean           $register_agent = false,
+  Optional[String]  $ams_server     = undef,
+  Optional[String]  $reg_key        = undef,
+  Optional[Boolean] $refresh_apt    = false,
 ) {
   # Check that we're running on a supported platform
   if $facts['os']['family'] == 'RedHat' and !($facts['os']['release']['major'] in ['7','8','9']) {
@@ -47,7 +48,7 @@ class lithnetamagent (
 
       $realosname = downcase($facts['os']['name'])
 
-      apt::source { 'Lithnet' :
+      apt::source { 'lithnet' :
         location => "https://packages.lithnet.io/linux/deb/prod/repos/${realosname}",
         release  => $facts['os']['distro']['codename'],
         repos    => 'main',
@@ -56,6 +57,16 @@ class lithnetamagent (
           'source' => 'https://packages.lithnet.io/keys/lithnet.asc',
         },
         before   => Package['LithnetAccessManagerAgent'],
+      }
+
+      if($refresh_apt) {
+        exec { 'refresh_apt':
+          path        => ['/usr/bin', '/usr/sbin'],
+          command     => 'apt update',
+          subscribe   => Apt::source['lithnet'],
+          refreshonly => true,
+          before      => Package['LithnetAccessManagerAgent'],
+        }
       }
     }
     # If we've ended up here, then this module doesn't currently support the OS
