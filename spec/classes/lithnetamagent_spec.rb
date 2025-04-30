@@ -66,7 +66,7 @@ describe 'lithnetamagent' do
         )
       }
       it {
-        is_expected.to contain_exec('refresh_apt').with(
+        is_expected.to contain_exec('lithnet_refresh_apt').with(
           'command' => 'apt update',
           'before'  => 'Package[LithnetAccessManagerAgent]',
         )

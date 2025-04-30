@@ -60,7 +60,7 @@ class lithnetamagent (
       }
 
       if($refresh_apt) {
-        exec { 'refresh_apt':
+        exec { 'lithnet_refresh_apt':
           path        => ['/usr/bin', '/usr/sbin'],
           command     => 'apt update',
           subscribe   => Apt::Source['lithnet'],
