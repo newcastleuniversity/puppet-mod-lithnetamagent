@@ -26,7 +26,8 @@ describe 'lithnetamagent' do
   settings = {
     'register_agent' => true,
     'ams_server'     => '192.168.1.100',
-    'reg_key'        => 'alphabetsoup'
+    'reg_key'        => 'alphabetsoup',
+    'refresh_apt'    => 'true'
   }
   context 'Supported OS tests with parameters' do
     let(:params) { settings }
@@ -55,13 +56,19 @@ describe 'lithnetamagent' do
       let(:facts) { os_facts }
 
       it {
-        is_expected.to contain_apt__source('Lithnet').with(
+        is_expected.to contain_apt__source('lithnet').with(
           'location' => 'https://packages.lithnet.io/linux/deb/prod/repos/ubuntu',
         )
       }
       it {
         is_expected.to contain_package('LithnetAccessManagerAgent').with(
           'name' => 'lithnetaccessmanageragent',
+        )
+      }
+      it {
+        is_expected.to contain_exec('refresh_apt').with(
+          'command' => 'apt update',
+          'before'  => 'Package[LithnetAccessManagerAgent]',
         )
       }
     end # ubuntu each

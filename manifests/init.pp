@@ -63,7 +63,7 @@ class lithnetamagent (
         exec { 'refresh_apt':
           path        => ['/usr/bin', '/usr/sbin'],
           command     => 'apt update',
-          subscribe   => Apt::source['lithnet'],
+          subscribe   => Apt::Source['lithnet'],
           refreshonly => true,
           before      => Package['LithnetAccessManagerAgent'],
         }
