@@ -27,7 +27,6 @@ describe 'lithnetamagent' do
     'register_agent' => true,
     'ams_server'     => '192.168.1.100',
     'reg_key'        => 'alphabetsoup',
-    'refresh_apt'    => 'true'
   }
   context 'Supported OS tests with parameters' do
     let(:params) { settings }

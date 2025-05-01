@@ -15,11 +15,15 @@
 #
 # @param reg_key
 #   Agent registration key
+#
+# @param refresh_apt
+#   (Applies to Ubuntu only; no-op on RedHat) When true, instruct this module to run `apt update` between adding the package repo and installing the package.  This is to ensure that the package is found and installed during the first agent run after it is added. Defaults to true, can be switched off with false if forced `apt update` isn't desirable in your environment.
+#
 class lithnetamagent (
   Boolean           $register_agent = false,
   Optional[String]  $ams_server     = undef,
   Optional[String]  $reg_key        = undef,
-  Optional[Boolean] $refresh_apt    = false,
+  Boolean           $refresh_apt    = true,
 ) {
   # Check that we're running on a supported platform
   if $facts['os']['family'] == 'RedHat' and !($facts['os']['release']['major'] in ['7','8','9']) {
