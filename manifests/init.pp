@@ -26,6 +26,29 @@ class lithnetamagent (
   }
   case $facts['os']['family'] {
     'RedHat' : {
+
+      case $facts['os']['release']['major'] {
+        '10': {
+        # Install Lithnet preview repo for rhel10 until its available in prod
+          Yumrepo { 'lithnet-am-repo':
+            baseurl  => "https://packages.lithnet.io/linux/rpm/preview/repos/rhel/${facts['os']['release']['major']}",
+            descr    => 'Lithnet Access Manager agent',
+            enabled  => 1,
+            gpgcheck => 0,
+          }
+        }
+        # Install the Lithnet RPM repo
+        # Note: Lithnet don't GPG sign their packages so gpgcheck is disabled
+        '7','8','9': {
+          Yumrepo { 'lithnet-am-repo':
+            baseurl  => "https://packages.lithnet.io/linux/rpm/prod/repos/rhel/${facts['os']['release']['major']}",
+            descr    => 'Lithnet Access Manager agent',
+            enabled  => 1,
+            gpgcheck => 0,
+          }
+        }
+      }
+
       # Install the Lithnet RPM repo
       # Note: Lithnet don't GPG sign their packages so gpgcheck is disabled
       Yumrepo { 'lithnet-am-repo':
