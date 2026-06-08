@@ -15,43 +15,88 @@
 #
 # @param reg_key
 #   Agent registration key
+#
+# @param refresh_apt
+#   (Applies to Ubuntu only; no-op on RedHat) When true, instruct this module to run `apt update` between adding the package repo and installing the package.  This is to ensure that the package is found and installed during the first agent run after it is added. Defaults to true, can be switched off with false if forced `apt update` isn't desirable in your environment.
+#
 class lithnetamagent (
-  Boolean          $register_agent = false,
-  Optional[String] $ams_server     = undef,
-  Optional[String] $reg_key        = undef,
+  Boolean           $register_agent = false,
+  Optional[String]  $ams_server     = undef,
+  Optional[String]  $reg_key        = undef,
+  Boolean           $refresh_apt    = true,
 ) {
   # Check that we're running on a supported platform
   if $facts['os']['family'] == 'RedHat' and !($facts['os']['release']['major'] in ['7','8','9']) {
     fail("Current os.release.major is ${::facts['os']['release']['major']} and must be 7, 8 or 9")
   }
+  if $facts['os']['name'] == 'Ubuntu' and !($facts['os']['release']['major'] in ['18.04','20.04','22.04','24.04']) {
+    fail("Current os.release.major is ${::facts['os']['release']['major']} and must be 18.04, 20.04, 22.04, or 24.04")
+  }
+
+  $packagename = lookup('lithnetamagent::packagename')
+
   case $facts['os']['family'] {
     'RedHat' : {
       # Install the Lithnet RPM repo
       # Note: Lithnet don't GPG sign their packages so gpgcheck is disabled
-      Yumrepo { 'lithnet-am-repo':
+      yumrepo { 'lithnet-am-repo':
         baseurl  => "https://packages.lithnet.io/linux/rpm/prod/repos/rhel/${facts['os']['release']['major']}",
         descr    => 'Lithnet Access Manager agent',
         enabled  => 1,
         gpgcheck => 0,
+        before   => Package['LithnetAccessManagerAgent'],
+      }
+    }
+    'Debian' : {
+      include apt
+
+      $realosname = downcase($facts['os']['name'])
+
+      apt::source { 'lithnet' :
+        location => "https://packages.lithnet.io/linux/deb/prod/repos/${realosname}",
+        release  => $facts['os']['distro']['codename'],
+        repos    => 'main',
+        key      => {
+          'id'     => '934961BD53874339F0967F33ADEDD2EEFBF6C33B',
+          'source' => 'https://packages.lithnet.io/keys/lithnet.asc',
+        },
+        before   => Package['LithnetAccessManagerAgent'],
       }
 
-      # Install the Lithnet Access Manager agent package
-      Package { 'LithnetAccessManagerAgent':
-        ensure  => 'installed',
-        require => Yumrepo['lithnet-am-repo'],
-      }
-
-      # If "register_agent" is true, try to register the agent
-      if($register_agent and $ams_server and $reg_key) {
-        exec { 'agent-register':
-          command => "/opt/LithnetAccessManagerAgent/Lithnet.AccessManager.Agent --server ${ams_server} --registration-key ${reg_key}",
-          unless  => "/usr/bin/grep -iq ${ams_server} /etc/LithnetAccessManagerAgent.conf",
-          user    => 'root',
-          require => Package['LithnetAccessManagerAgent'],
+      if($refresh_apt) {
+        exec { 'lithnet_refresh_apt':
+          path        => ['/usr/bin', '/usr/sbin'],
+          command     => 'apt update',
+          subscribe   => Apt::Source['lithnet'],
+          refreshonly => true,
+          before      => Package['LithnetAccessManagerAgent'],
         }
       }
     }
     # If we've ended up here, then this module doesn't currently support the OS
     default : { fail("Unsupported OS ${facts['os']['family']}.") }
+  }
+  # If I'm here, I've configured a repo and not fallen into the default fail().
+
+  # Install the Lithnet Access Manager agent package
+  package { 'LithnetAccessManagerAgent':
+    ensure => 'latest',
+    name   => $packagename,
+  }
+
+  # If "register_agent" is true, try to register the agent
+  if($register_agent and $ams_server and $reg_key) {
+    exec { 'agent-register':
+      command => "/opt/LithnetAccessManagerAgent/Lithnet.AccessManager.Agent --server ${ams_server} --registration-key ${reg_key}",
+      unless  => "/usr/bin/grep -iq ${ams_server} /etc/LithnetAccessManagerAgent.conf",
+      user    => 'root',
+      require => Package['LithnetAccessManagerAgent'],
+      notify  => Service['LithnetAccessManagerAgent'],
+    }
+
+    service { 'LithnetAccessManagerAgent':
+      ensure => 'running',
+      enable => true,
+    }
   }
 }

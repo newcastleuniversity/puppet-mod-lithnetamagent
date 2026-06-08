@@ -24,6 +24,8 @@ Installs the Lithnet Access Manager agent package.  Optionally registers the age
 
 If using the registration feature, an active Lithnet AMS server is required, configured with support for Lithnet LAPS and registration of clients using keys.  More information can be found in the [Setting up Lithnet LAPS](https://docs.lithnet.io/ams/configuration/deploying-features/setting-up-lithnet-laps) section of the documentation.
 
+Ubuntu systems need the puppetlabs/apt module from Puppet Forge and its dependencies.  This module is tested with puppetlabs/apt 6.2.0, puppetlabs/stdlib 5.2.0, and puppetlabs/translate 1.2.0.
+
 ### Beginning with the module
 
 Include the main 'lithnetamagent' class.
@@ -40,4 +42,4 @@ To enable agent registration, set the following params via module args / hiera:
 
 ## Limitations
 
-Currently only supports RHEL/CentOS 7, 8 & 9.
+Currently only supports RHEL/CentOS 7, 8 & 9; and Ubuntu 22.04 and 20.04.
